@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
 	"workwork/src/models"
-
-	"github.com/rs/zerolog/log"
 )
 
 type Loader interface {
@@ -35,8 +32,7 @@ func (converter *PlainConverter) Deserialize(data string) ([]models.WorkDay, err
 		}
 		date, err := time.Parse("01-02-2006", data[0])
 		if err != nil {
-			log.Warn().Err(err).Msg(fmt.Sprintf("could not parse date %s", data[0]))
-			continue
+			return workdays, err
 		}
 		currentDay.Date = date
 
@@ -44,15 +40,13 @@ func (converter *PlainConverter) Deserialize(data string) ([]models.WorkDay, err
 
 		begin, err := models.CreateDay(startEndTime[0])
 		if err != nil {
-			log.Warn().Err(err).Msg(fmt.Sprintf("could not parse day %s", startEndTime[0]))
-			continue
+			return workdays, err
 		}
 		currentDay.Begin = begin
 		if len(startEndTime) == 2 {
 			end, err := models.CreateDay(startEndTime[1])
 			if err != nil {
-				log.Warn().Err(err).Msg(fmt.Sprintf("could not parse day %s", startEndTime[1]))
-				continue
+				return workdays, err
 			}
 			currentDay.End = end
 		}
