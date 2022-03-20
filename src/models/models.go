@@ -19,6 +19,19 @@ type WorkDay struct {
 	Pause int
 }
 
+func (work *WorkDay) Start() {
+	work.Date = time.Now()
+	work.Begin.Hour = work.Date.Hour()
+	work.Begin.Hour = work.Date.Minute()
+}
+
+func (work *WorkDay) Quit() {
+	end := time.Now()
+	work.End.Hour = end.Hour()
+	work.End.Min = end.Minute()
+}
+
+// Creates and validates day struct from day string hh:mm
 func CreateDay(day string) (Day, error) {
 	startEndTime := strings.Split(day, ":")
 

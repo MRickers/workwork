@@ -2,6 +2,8 @@ package controller
 
 import (
 	"testing"
+	"time"
+	"workwork/src/models"
 )
 
 func TestConverter1(t *testing.T) {
@@ -205,4 +207,30 @@ func TestConverterInvalidStartEnd(t *testing.T) {
 	if err == nil {
 		t.Fatal(err)
 	}
+}
+
+func TestConverterSerialzie1(t *testing.T) {
+	converter := PlainConverter{}
+
+	workday := models.WorkDay{}
+	workday.Date, _ = time.Parse("01-02-2006", "03-04-2025")
+	workday.Begin.Hour = 8
+	workday.Begin.Min = 0
+	workday.End.Hour = 16
+	workday.End.Min = 0
+
+	workday2 := models.WorkDay{}
+	workday2.Date = time.Now()
+	workday2.Begin.Hour = 7
+	workday2.Begin.Min = 28
+	workday2.End.Hour = 17
+	workday2.End.Min = 32
+
+	serialized, err := converter.Serialize([]models.WorkDay{workday, workday2})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(serialized)
 }

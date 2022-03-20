@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -56,5 +57,19 @@ func (converter *PlainConverter) Deserialize(data string) ([]models.WorkDay, err
 }
 
 func (converter *PlainConverter) Serialize(data []models.WorkDay) (string, error) {
-	return "", nil
+	if len(data) == 0 {
+		return "", fmt.Errorf("workday empty")
+	}
+	workdays := "Date\tBegin-End\r\n"
+	for _, workday := range data {
+		workday_serialize := fmt.Sprintf("%s\t%02d:%02d-%02d:%02d\r\n",
+			workday.Date.Format("01-02-2006"),
+			workday.Begin.Hour,
+			workday.Begin.Min,
+			workday.End.Hour,
+			workday.End.Min)
+
+		workdays += workday_serialize
+	}
+	return workdays, nil
 }
