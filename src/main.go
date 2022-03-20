@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	workwork "workwork/src/app"
@@ -23,7 +24,10 @@ func main() {
 	flag.Parse()
 
 	if start {
-		workwork.StartWorkDay()
+		err := workwork.StartWorkDay()
+		if err != nil {
+			fmt.Println(err)
+		}
 	} else {
 		flag.Usage()
 	}
