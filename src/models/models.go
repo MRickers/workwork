@@ -22,13 +22,19 @@ type WorkDay struct {
 func (work *WorkDay) Start() {
 	work.Date = time.Now()
 	work.Begin.Hour = work.Date.Hour()
-	work.Begin.Hour = work.Date.Minute()
+	work.Begin.Min = work.Date.Minute()
 }
 
 func (work *WorkDay) Quit() {
 	end := time.Now()
 	work.End.Hour = end.Hour()
 	work.End.Min = end.Minute()
+}
+
+func NewDay() WorkDay {
+	day := WorkDay{}
+	day.Start()
+	return day
 }
 
 // Creates and validates day struct from day string hh:mm

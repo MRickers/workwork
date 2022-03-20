@@ -1,21 +1,64 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"workwork/src/models"
 )
 
-type Loader interface {
-	Load(filename string) (string, error)
+type FileLoader interface {
+	Load(filename string) ([]byte, error)
 	Save(filename string, data []byte) error
+	Append(filename string, data []byte) error
+	Exist(filename string) bool
 }
 
 type Converter interface {
 	Deserialize(data string) ([]models.WorkDay, error)
 	Serialize(data []models.WorkDay) (string, error)
+}
+
+type PlainLoader struct{}
+
+func (loader *PlainLoader) Load(filename string) ([]byte, error) {
+	data, err := os.ReadFile(filename)
+
+	if err != nil {
+		return []byte{}, err
+	}
+	return data, nil
+}
+
+func (loader *PlainLoader) Save(filename string, data []byte) error {
+	err := os.WriteFile(filename, data, 0644)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (loader *PlainLoader) Append(filename string, data []byte) error {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = file.Write(data)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (loader *PlainLoader) Exist(filename string) bool {
+	_, err := os.Stat(filename)
+	return !errors.Is(err, os.ErrNotExist)
 }
 
 type PlainConverter struct {
