@@ -9,6 +9,7 @@ import (
 )
 
 const workDayloadPath = "work.tmp"
+const workSheetLoadPath = "worksheet.work"
 
 func CheckInWorkDay() error {
 	loader := controller.PlainLoader{}
@@ -19,13 +20,15 @@ func CheckInWorkDay() error {
 
 	workday := models.NewDay()
 	converter := controller.PlainConverter{}
+	var serialized = "Date\t\tBegin-End\r\n"
 
 	serialized_day, err := converter.Serialize([]models.WorkDay{workday})
 	if err != nil {
 		log.Error().Err(err)
 		return err
 	}
-	err = loader.Save(workDayloadPath, []byte(serialized_day))
+	serialized += serialized_day
+	err = loader.Save(workDayloadPath, []byte(serialized))
 
 	if err != nil {
 		log.Error().Err(err)
@@ -84,7 +87,21 @@ func CheckOutWorkDay() error {
 		log.Error().Err(err)
 		return err
 	}
-	err = loader.Save(workDayloadPath, []byte(serialized_day))
+	err = loader.Delete(workDayloadPath)
+
+	if err != nil {
+		log.Error().Err(err)
+		return err
+	}
+	// append to worksheet
+
+	if loader.Exist(workSheetLoadPath) {
+		err = loader.Append(workSheetLoadPath, []byte(serialized_day))
+
+	} else {
+		var serialized = "Date\t\tBegin-End\r\n" + serialized_day
+		err = loader.Save(workSheetLoadPath, []byte(serialized))
+	}
 
 	if err != nil {
 		log.Error().Err(err)

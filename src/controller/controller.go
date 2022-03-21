@@ -14,6 +14,7 @@ type FileLoader interface {
 	Load(filename string) ([]byte, error)
 	Save(filename string, data []byte) error
 	Append(filename string, data []byte) error
+	Delete(filename string) error
 	Exist(filename string) bool
 }
 
@@ -54,6 +55,10 @@ func (loader *PlainLoader) Append(filename string, data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (loader *PlainLoader) Delete(filename string) error {
+	return os.Remove(filename)
 }
 
 func (loader *PlainLoader) Exist(filename string) bool {
@@ -103,7 +108,7 @@ func (converter *PlainConverter) Serialize(data []models.WorkDay) (string, error
 	if len(data) == 0 {
 		return "", fmt.Errorf("workday empty")
 	}
-	workdays := "Date\t\tBegin-End\r\n"
+	workdays := ""
 	for _, workday := range data {
 		workday_serialize := fmt.Sprintf("%s\t%02d:%02d-%02d:%02d\r\n",
 			workday.Date.Format("01-02-2006"),
