@@ -28,17 +28,17 @@ func main() {
 	flag.Parse()
 
 	if start {
-		err := workwork.CheckInWorkDay()
+		err := workwork.CheckInWorkDay(os.Args[0])
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else if restart {
-		err := workwork.RestartWorkDay()
+		err := workwork.RestartWorkDay(os.Args[0])
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else if end {
-		err := workwork.CheckOutWorkDay()
+		err := workwork.CheckOutWorkDay(os.Args[0])
 		if err != nil {
 			fmt.Println(err)
 		}

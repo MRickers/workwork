@@ -11,10 +11,12 @@ import (
 const workDayloadPath = "work.tmp"
 const workSheetLoadPath = "worksheet.work"
 
-func CheckInWorkDay() error {
+func CheckInWorkDay(exePath string) error {
+	var absDayLoadPath = exePath + "\\" + workDayloadPath
+
 	loader := controller.PlainLoader{}
 
-	if loader.Exist(workDayloadPath) {
+	if loader.Exist(absDayLoadPath) {
 		return fmt.Errorf("already checked in")
 	}
 
@@ -28,7 +30,8 @@ func CheckInWorkDay() error {
 		return err
 	}
 	serialized += serialized_day
-	err = loader.Save(workDayloadPath, []byte(serialized))
+
+	err = loader.Save(absDayLoadPath, []byte(serialized))
 
 	if err != nil {
 		log.Error().Err(err)
@@ -37,7 +40,9 @@ func CheckInWorkDay() error {
 	return nil
 }
 
-func RestartWorkDay() error {
+func RestartWorkDay(exePath string) error {
+	var absDayLoadPath = exePath + "\\" + workDayloadPath
+
 	loader := controller.PlainLoader{}
 
 	workday := models.NewDay()
@@ -48,7 +53,7 @@ func RestartWorkDay() error {
 		log.Error().Err(err)
 		return err
 	}
-	err = loader.Save(workDayloadPath, []byte(serialized_day))
+	err = loader.Save(absDayLoadPath, []byte(serialized_day))
 
 	if err != nil {
 		log.Error().Err(err)
@@ -57,14 +62,17 @@ func RestartWorkDay() error {
 	return nil
 }
 
-func CheckOutWorkDay() error {
+func CheckOutWorkDay(exePath string) error {
+	var absDayLoadPath = exePath + "\\" + workDayloadPath
+	var absSheetLoadPath = exePath + "\\" + workSheetLoadPath
+
 	loader := controller.PlainLoader{}
 
-	if !loader.Exist(workDayloadPath) {
+	if !loader.Exist(absDayLoadPath) {
 		return fmt.Errorf("not checked in yet")
 	}
 
-	workday_byte, err := loader.Load(workDayloadPath)
+	workday_byte, err := loader.Load(absDayLoadPath)
 
 	if err != nil {
 		log.Error().Err(err)
@@ -87,7 +95,7 @@ func CheckOutWorkDay() error {
 		log.Error().Err(err)
 		return err
 	}
-	err = loader.Delete(workDayloadPath)
+	err = loader.Delete(absDayLoadPath)
 
 	if err != nil {
 		log.Error().Err(err)
@@ -95,12 +103,12 @@ func CheckOutWorkDay() error {
 	}
 	// append to worksheet
 
-	if loader.Exist(workSheetLoadPath) {
-		err = loader.Append(workSheetLoadPath, []byte(serialized_day))
+	if loader.Exist(absSheetLoadPath) {
+		err = loader.Append(absSheetLoadPath, []byte(serialized_day))
 
 	} else {
 		var serialized = "Date\t\tBegin-End\r\n" + serialized_day
-		err = loader.Save(workSheetLoadPath, []byte(serialized))
+		err = loader.Save(absSheetLoadPath, []byte(serialized))
 	}
 
 	if err != nil {
