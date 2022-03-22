@@ -31,6 +31,28 @@ func (work *WorkDay) Quit() {
 	work.End.Min = end.Minute()
 }
 
+// 20:00 04:30
+func (work *WorkDay) Minus(other WorkDay) error {
+	if work.Date.Before(other.Date) {
+		return fmt.Errorf("other day greater this")
+	}
+
+	if work.Date.Year() > other.Date.Year() ||
+		work.Date.Month() > other.Date.Month() ||
+		work.Date.Day() > other.Date.Day() {
+
+		fmt.Println("New day, year, month")
+	} else { // same day
+		work.Begin.Hour -= other.Begin.Hour
+		work.Begin.Min -= other.Begin.Min
+		if work.Begin.Min < 0 {
+			work.Begin.Min = 60 + work.Begin.Min
+			work.Begin.Hour -= 1
+		}
+	}
+	return nil
+}
+
 func NewDay() WorkDay {
 	day := WorkDay{}
 	day.Start()
