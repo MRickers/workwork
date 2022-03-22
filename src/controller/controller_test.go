@@ -9,7 +9,7 @@ import (
 func TestConverter1(t *testing.T) {
 	converter := PlainConverter{}
 
-	workdays, err := converter.Deserialize("03-22-2022\t07:45-16:15")
+	workdays, err := converter.Deserialize("03-22-2022\t07:45-16:15\t30")
 
 	if err != nil {
 		t.Fatal(err)
@@ -45,12 +45,16 @@ func TestConverter1(t *testing.T) {
 	if workdays[0].End.Min != 15 {
 		t.Fatalf("Invalid workdays end min %d", workdays[0].End.Min)
 	}
+
+	if workdays[0].Pause != 30 {
+		t.Fatalf("Invalid workdays pause %d", workdays[0].Pause)
+	}
 }
 
 func TestConverter2(t *testing.T) {
 	converter := PlainConverter{}
 
-	workdays, err := converter.Deserialize("01-31-2022\t05:32-18:59")
+	workdays, err := converter.Deserialize("01-31-2022\t05:32-18:59\t33")
 
 	if err != nil {
 		t.Fatal(err)
@@ -86,12 +90,16 @@ func TestConverter2(t *testing.T) {
 	if workdays[0].End.Min != 59 {
 		t.Fatalf("Invalid workdays end min %d", workdays[0].End.Min)
 	}
+
+	if workdays[0].Pause != 33 {
+		t.Fatalf("Invalid workdays pause %d", workdays[0].Pause)
+	}
 }
 
 func TestConverter3(t *testing.T) {
 	converter := PlainConverter{}
 
-	workdays, err := converter.Deserialize("01-31-2022\t05:32-18:59\r\n12-31-2023\t00:01-23:39")
+	workdays, err := converter.Deserialize("01-31-2022\t05:32-18:59\t45\r\n12-31-2023\t00:01-23:39\t60")
 
 	if err != nil {
 		t.Fatal(err)
@@ -127,12 +135,16 @@ func TestConverter3(t *testing.T) {
 	if workdays[1].End.Min != 39 {
 		t.Fatalf("Invalid workdays end min %d", workdays[1].End.Min)
 	}
+
+	if workdays[0].Pause != 60 {
+		t.Fatalf("Invalid workdays pause %d", workdays[0].Pause)
+	}
 }
 
 func TestConverter4(t *testing.T) {
 	converter := PlainConverter{}
 
-	workdays, err := converter.Deserialize("05-05-2022\t05:32-18:59\r\n12-31-2023\t00:01-23:39\r\n01-01-2022\t00:00-12:12")
+	workdays, err := converter.Deserialize("05-05-2022\t05:32-18:59\t30\r\n12-31-2023\t00:01-23:39\t39\r\n01-01-2022\t00:00-12:12\t15")
 
 	if err != nil {
 		t.Fatal(err)
@@ -182,7 +194,7 @@ func TestConverter4(t *testing.T) {
 func TestConverterInvalidDay(t *testing.T) {
 	converter := PlainConverter{}
 
-	_, err := converter.Deserialize("1-05-2022\t05:32-18:59\r\n")
+	_, err := converter.Deserialize("1-05-2022\t05:32-18:59\t30\r\n")
 
 	if err == nil {
 		t.Fatal(err)
@@ -192,7 +204,7 @@ func TestConverterInvalidDay(t *testing.T) {
 func TestConverterInvalidMonth(t *testing.T) {
 	converter := PlainConverter{}
 
-	_, err := converter.Deserialize("03-5-2022\t05:32-18:59\r\n")
+	_, err := converter.Deserialize("03-5-2022\t05:32-18:59\t30\r\n")
 
 	if err == nil {
 		t.Fatal(err)
@@ -202,7 +214,7 @@ func TestConverterInvalidMonth(t *testing.T) {
 func TestConverterInvalidStartEnd(t *testing.T) {
 	converter := PlainConverter{}
 
-	_, err := converter.Deserialize("04-07-2022\t5:32/18:59\r\n")
+	_, err := converter.Deserialize("04-07-2022\t5:32/18:59\t30\r\n")
 
 	if err == nil {
 		t.Fatal(err)

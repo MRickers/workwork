@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -76,7 +77,7 @@ func (converter *PlainConverter) Deserialize(data string) ([]models.WorkDay, err
 	for _, workday := range rows {
 		currentDay := models.WorkDay{}
 		data := strings.Split(workday, "\t")
-		if len(data) != 2 {
+		if len(data) != 3 {
 			continue
 		}
 		date, err := time.Parse("01-02-2006", data[0])
@@ -99,6 +100,10 @@ func (converter *PlainConverter) Deserialize(data string) ([]models.WorkDay, err
 			}
 			currentDay.End = end
 		}
+		currentDay.Pause, err = strconv.Atoi(data[2])
+		if err != nil {
+			return workdays, err
+		}
 		workdays = append(workdays, currentDay)
 	}
 	return workdays, nil
@@ -110,12 +115,13 @@ func (converter *PlainConverter) Serialize(data []models.WorkDay) (string, error
 	}
 	workdays := ""
 	for _, workday := range data {
-		workday_serialize := fmt.Sprintf("%s\t%02d:%02d-%02d:%02d\r\n",
+		workday_serialize := fmt.Sprintf("%s\t%02d:%02d-%02d:%02d\t%d\r\n",
 			workday.Date.Format("01-02-2006"),
 			workday.Begin.Hour,
 			workday.Begin.Min,
 			workday.End.Hour,
-			workday.End.Min)
+			workday.End.Min,
+			workday.Pause)
 
 		workdays += workday_serialize
 	}

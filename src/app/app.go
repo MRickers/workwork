@@ -3,6 +3,7 @@ package workwork
 import (
 	"fmt"
 	"workwork/src/controller"
+	"workwork/src/helper"
 	"workwork/src/models"
 
 	"github.com/rs/zerolog/log"
@@ -12,7 +13,7 @@ const workDayloadPath = "work.tmp"
 const workSheetLoadPath = "worksheet.work"
 
 func CheckInWorkDay(exePath string) error {
-	var absDayLoadPath = exePath + "\\" + workDayloadPath
+	var absDayLoadPath = helper.StripExeName(exePath) + workDayloadPath
 
 	loader := controller.PlainLoader{}
 
@@ -22,7 +23,7 @@ func CheckInWorkDay(exePath string) error {
 
 	workday := models.NewDay()
 	converter := controller.PlainConverter{}
-	var serialized = "Date\t\tBegin-End\r\n"
+	var serialized = "Date\t\tBegin-End\tPause\r\n"
 
 	serialized_day, err := converter.Serialize([]models.WorkDay{workday})
 	if err != nil {
@@ -41,7 +42,7 @@ func CheckInWorkDay(exePath string) error {
 }
 
 func RestartWorkDay(exePath string) error {
-	var absDayLoadPath = exePath + "\\" + workDayloadPath
+	var absDayLoadPath = helper.StripExeName(exePath) + workDayloadPath
 
 	loader := controller.PlainLoader{}
 
@@ -63,8 +64,8 @@ func RestartWorkDay(exePath string) error {
 }
 
 func CheckOutWorkDay(exePath string) error {
-	var absDayLoadPath = exePath + "\\" + workDayloadPath
-	var absSheetLoadPath = exePath + "\\" + workSheetLoadPath
+	var absDayLoadPath = helper.StripExeName(exePath) + workDayloadPath
+	var absSheetLoadPath = helper.StripExeName(exePath) + workSheetLoadPath
 
 	loader := controller.PlainLoader{}
 
@@ -88,7 +89,7 @@ func CheckOutWorkDay(exePath string) error {
 	}
 
 	workday[0].Quit()
-
+	workday[0].Pause = 30
 	serialized_day, err := converter.Serialize(workday)
 
 	if err != nil {
@@ -107,7 +108,7 @@ func CheckOutWorkDay(exePath string) error {
 		err = loader.Append(absSheetLoadPath, []byte(serialized_day))
 
 	} else {
-		var serialized = "Date\t\tBegin-End\r\n" + serialized_day
+		var serialized = "Date\t\tBegin-End\tPause\r\n" + serialized_day
 		err = loader.Save(absSheetLoadPath, []byte(serialized))
 	}
 

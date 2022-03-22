@@ -27,18 +27,24 @@ func main() {
 
 	flag.Parse()
 
+	path, err := os.Executable()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	if start {
-		err := workwork.CheckInWorkDay(os.Args[0])
+		err := workwork.CheckInWorkDay(path)
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else if restart {
-		err := workwork.RestartWorkDay(os.Args[0])
+		err := workwork.RestartWorkDay(path)
 		if err != nil {
 			fmt.Println(err)
 		}
 	} else if end {
-		err := workwork.CheckOutWorkDay(os.Args[0])
+		err := workwork.CheckOutWorkDay(path)
 		if err != nil {
 			fmt.Println(err)
 		}
