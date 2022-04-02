@@ -19,6 +19,12 @@ type WorkDay struct {
 	Pause int
 }
 
+type WorkMonth struct {
+	Date       time.Time
+	TotalHours uint32
+	TotalMins  uint32
+}
+
 func (work *WorkDay) Start() {
 	work.Date = time.Now()
 	work.Begin.Hour = work.Date.Hour()
@@ -85,6 +91,41 @@ func CreateDay(day string) (Day, error) {
 		return Day{Hour: hour, Min: minute}, nil
 	}
 	return Day{Hour: hour, Min: 0}, nil
+}
+
+func WorkSum(workSheet []WorkDay) {
+	months := getMonths(workSheet)
+
+	for _, month := range months {
+		fmt.Printf("%s\r\nHours: %d Mins: %d\r\n\r\n", month.Date.Format("01-02-2006"), month.TotalHours, month.TotalMins)
+	}
+}
+
+func getMonths(workSheet []WorkDay) []WorkMonth {
+	months := []WorkMonth{}
+
+	if len(workSheet) == 0 {
+		fmt.Print("empty worksheet")
+		return nil
+	}
+	var lastMonth time.Month = workSheet[0].Date.Month()
+	currentMonth := WorkMonth{Date: workSheet[0].Date, TotalHours: 0, TotalMins: 0}
+
+	for _, day := range workSheet {
+		//fmt.Printf("Cur month %d", day.Date.Month())
+		if lastMonth != day.Date.Month() {
+			//fmt.Printf("New month %d", lastMonth)
+			lastMonth = day.Date.Month()
+			months = append(months, currentMonth)
+			currentMonth = WorkMonth{Date: day.Date, TotalHours: 0, TotalMins: 0}
+		}
+
+		currentMonth.TotalHours += uint32(day.End.Hour - day.Begin.Hour)
+		currentMonth.TotalMins += uint32(day.End.Min - day.Begin.Min)
+	}
+	months = append(months, currentMonth)
+
+	return months
 }
 
 func validHour(hour int) bool {

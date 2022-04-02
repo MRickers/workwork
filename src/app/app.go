@@ -150,9 +150,40 @@ func ShowInfo(exePath string) error {
 		return err
 	}
 
-	fmt.Printf("%s\r\nChecked in: %02d:%02d\r\nTime worked: %02d:%02d", day.Date.Format("01-02-2006"), day.Begin.Hour, day.Begin.Min, timeWorked.Begin.Hour, timeWorked.Begin.Min)
+	fmt.Printf("%s\r\nChecked in: %02d:%02d\r\nTime worked: %02d:%02d",
+		day.Date.Format("01-02-2006"),
+		day.Begin.Hour,
+		day.Begin.Min,
+		timeWorked.Begin.Hour,
+		timeWorked.Begin.Min)
 
 	return nil
 }
 
-// 8:32 9:33
+func ShowOverallInfo(exePath string) error {
+	var absSheetLoadPath = helper.StripExeName(exePath) + workSheetLoadPath
+
+	loader := controller.PlainLoader{}
+
+	if !loader.Exist(absSheetLoadPath) {
+		return fmt.Errorf("worksheet found")
+	}
+
+	workSheet_byte, err := loader.Load(absSheetLoadPath)
+
+	if err != nil {
+		return fmt.Errorf("loading worksheet failed: %s", err.Error())
+	}
+
+	converter := controller.PlainConverter{}
+
+	workSheet, err := converter.Deserialize(string(workSheet_byte))
+
+	if err != nil {
+		return fmt.Errorf("deserialzing worksheet failed: %s", err.Error())
+	}
+
+	models.WorkSum(workSheet)
+
+	return nil
+}

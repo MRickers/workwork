@@ -20,12 +20,14 @@ func main() {
 	var restart bool
 	var end bool
 	var info bool
+	var sum bool
 
 	flag.StringVar(&filename, "file", workSheetPath, "Specify worksheet.dat to use")
 	flag.BoolVar(&start, "check-in", false, "Check in")
 	flag.BoolVar(&restart, "restart", false, "Check in, discard previous check in")
 	flag.BoolVar(&end, "check-out", false, "Check out")
 	flag.BoolVar(&info, "info", false, "Shows info about current workday")
+	flag.BoolVar(&sum, "summary", false, "Shows total work info")
 
 	flag.Parse()
 
@@ -52,6 +54,11 @@ func main() {
 		}
 	} else if info {
 		err := workwork.ShowInfo(path)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else if sum {
+		err := workwork.ShowOverallInfo(path)
 		if err != nil {
 			fmt.Println(err)
 		}
