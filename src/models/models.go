@@ -46,7 +46,7 @@ func (work *WorkDay) Minus(other WorkDay) error {
 		work.Begin.Hour -= other.Begin.Hour
 		work.Begin.Min -= other.Begin.Min
 		if work.Begin.Min < 0 {
-			work.Begin.Min = 60 + work.Begin.Min
+			work.Begin.Min += 60
 			work.Begin.Hour -= 1
 		}
 	}
