@@ -20,9 +20,11 @@ type WorkDay struct {
 }
 
 type WorkMonth struct {
-	Date       time.Time
-	TotalHours uint32
-	TotalMins  uint32
+	Date          time.Time
+	TotalHours    uint32
+	TotalMins     uint32
+	OverTimeHours uint32
+	OverTimeMins  uint32
 }
 
 func (work *WorkDay) Start() {
@@ -95,13 +97,21 @@ func CreateDay(day string) (Day, error) {
 
 func WorkSum(workSheet []WorkDay) {
 	months := getMonths(workSheet)
-
+	fmt.Print("Work statistics\r\n")
 	for _, month := range months {
-		fmt.Printf("%s\r\nHours: %d Mins: %d\r\n\r\n", month.Date.Format("01-02-2006"), month.TotalHours, month.TotalMins)
+		fmt.Printf("%s %d\r\n%d:%02d hours Overtime: %d:%02d\r\n\r\n",
+			month.Date.Month(),
+			month.Date.Year(),
+			month.TotalHours,
+			month.TotalMins,
+			month.OverTimeHours,
+			month.OverTimeMins)
 	}
+	fmt.Printf("")
 }
 
 func getMonths(workSheet []WorkDay) []WorkMonth {
+	const pause int = 30
 	months := []WorkMonth{}
 
 	if len(workSheet) == 0 {
@@ -112,16 +122,42 @@ func getMonths(workSheet []WorkDay) []WorkMonth {
 	currentMonth := WorkMonth{Date: workSheet[0].Date, TotalHours: 0, TotalMins: 0}
 
 	for _, day := range workSheet {
-		//fmt.Printf("Cur month %d", day.Date.Month())
 		if lastMonth != day.Date.Month() {
-			//fmt.Printf("New month %d", lastMonth)
 			lastMonth = day.Date.Month()
+			// minuten in stunden umrechnen
+			mins := currentMonth.TotalMins % 60
+			hours := currentMonth.TotalMins / 60
+			currentMonth.TotalHours += hours
+			currentMonth.TotalMins = mins
+
+			mins = currentMonth.OverTimeMins % 60
+			hours = currentMonth.OverTimeMins / 60
+			currentMonth.OverTimeHours += hours
+			currentMonth.OverTimeMins = mins
+
 			months = append(months, currentMonth)
 			currentMonth = WorkMonth{Date: day.Date, TotalHours: 0, TotalMins: 0}
 		}
+		workedHours := day.End.Hour - day.Begin.Hour
+		workedMins := day.End.Min - day.Begin.Min - pause
 
-		currentMonth.TotalHours += uint32(day.End.Hour - day.Begin.Hour)
-		currentMonth.TotalMins += uint32(day.End.Min - day.Begin.Min)
+		if workedHours < 0 {
+			fmt.Printf("invalid workedHours %d", workedHours)
+			continue
+		}
+
+		if workedMins < 0 && workedHours >= 1 {
+			workedHours -= 1
+			workedMins += 60
+		}
+
+		// 0810 1603
+		if workedHours > 8 || (workedHours == 8 && workedMins > 0) {
+			currentMonth.OverTimeHours += uint32(workedHours - 8)
+			currentMonth.OverTimeMins += uint32(workedMins)
+		}
+		currentMonth.TotalHours += uint32(workedHours)
+		currentMonth.TotalMins += uint32(workedMins)
 	}
 	months = append(months, currentMonth)
 
