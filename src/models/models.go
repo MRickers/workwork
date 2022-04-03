@@ -140,7 +140,7 @@ func getMonths(workSheet []WorkDay) []WorkMonth {
 		}
 		workedHours := day.End.Hour - day.Begin.Hour
 		workedMins := day.End.Min - day.Begin.Min - pause
-
+		fmt.Printf("\n\nHours: %d Mins: %d", workedHours, workedMins)
 		if workedHours < 0 {
 			fmt.Printf("invalid workedHours %d", workedHours)
 			continue
@@ -156,9 +156,23 @@ func getMonths(workSheet []WorkDay) []WorkMonth {
 			currentMonth.OverTimeHours += uint32(workedHours - 8)
 			currentMonth.OverTimeMins += uint32(workedMins)
 		}
-		currentMonth.TotalHours += uint32(workedHours)
-		currentMonth.TotalMins += uint32(workedMins)
+
+		if workedHours >= 0 && workedMins >= 0 {
+			currentMonth.TotalHours += uint32(workedHours)
+			currentMonth.TotalMins += uint32(workedMins)
+		}
 	}
+
+	mins := currentMonth.TotalMins % 60
+	hours := currentMonth.TotalMins / 60
+	currentMonth.TotalHours += hours
+	currentMonth.TotalMins = mins
+
+	mins = currentMonth.OverTimeMins % 60
+	hours = currentMonth.OverTimeMins / 60
+	currentMonth.OverTimeHours += hours
+	currentMonth.OverTimeMins = mins
+
 	months = append(months, currentMonth)
 
 	return months
