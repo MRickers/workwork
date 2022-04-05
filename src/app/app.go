@@ -166,7 +166,7 @@ func ShowOverallInfo(exePath string) error {
 	loader := controller.PlainLoader{}
 
 	if !loader.Exist(absSheetLoadPath) {
-		return fmt.Errorf("worksheet found")
+		return fmt.Errorf("worksheet not found")
 	}
 
 	workSheet_byte, err := loader.Load(absSheetLoadPath)

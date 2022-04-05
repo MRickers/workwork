@@ -140,7 +140,6 @@ func getMonths(workSheet []WorkDay) []WorkMonth {
 		}
 		workedHours := day.End.Hour - day.Begin.Hour
 		workedMins := day.End.Min - day.Begin.Min - pause
-		fmt.Printf("\n\nHours: %d Mins: %d", workedHours, workedMins)
 		if workedHours < 0 {
 			fmt.Printf("invalid workedHours %d", workedHours)
 			continue
